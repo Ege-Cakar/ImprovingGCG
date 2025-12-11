@@ -1,0 +1,29 @@
+# Minimal, compatible pins for gcg-steering (FastChat + Transformers 4.28.x + Python 3.11)
+
+# Core model stack
+torch==2.1.0
+transformers==4.28.1
+tokenizers==0.13.3
+accelerate==0.21.0
+fschat==0.2.20           # FastChat conversation templates
+pydantic<2.0              # required by fschat 0.2.20
+
+# GCG / infra
+ml_collections==0.1.1
+absl-py==1.4.0
+
+# Data / utils
+numpy==1.26.4
+pandas==2.0.3
+tqdm==4.66.4
+datasets==2.19.0
+einops==0.8.0
+jaxtyping==0.2.29
+matplotlib==3.8.4
+sentencepiece==0.1.99
+safetensors==0.4.2
+
+# API experiments (optional but kept)
+openai==1.30.0
+anthropic==0.34.0
+scriptify==0.0.1
