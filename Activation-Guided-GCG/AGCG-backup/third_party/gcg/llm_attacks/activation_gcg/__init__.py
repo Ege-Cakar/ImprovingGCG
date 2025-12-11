@@ -1,6 +1,0 @@
-from .activation_gcg_attack import ActivationAttackPrompt as AttackPrompt
-from .activation_gcg_attack import ActivationPromptManager as PromptManager
-from .activation_gcg_attack import ActivationMultiPromptAttack as MultiPromptAttack
-
-# Reuse existing progressive/individual wrappers for compatibility
-from llm_attacks import ProgressiveMultiPromptAttack, IndividualPromptAttack

@@ -1,7 +1,0 @@
-{
-    "alpaca_custom_completions": {
-        "ce_loss": 0.08984659159796314,
-        "perplexity": 1.0940064410513632,
-        "n_tokens": 6186
-    }
-}
