@@ -289,6 +289,7 @@ def run_gcg(model, batch, seed_ids, tokenizer, embed_weights, steps=100, smoke_t
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--smoke-test", action="store_true", help="Run tiny fast version to check bugs")
+    parser.add_argument("--num-trials", type=int, default=10, help="Number of independent trials per config")
     args = parser.parse_args()
     
     run_dir = setup_logger(args.smoke_test)
@@ -306,18 +307,9 @@ def main():
         active_train = TRAIN_DATA[:2]
         active_test = TEST_DATA[:2]
     else:
-        # THE FULL SWEEP
         configs = [
             (0,   500, "Baseline (Pure GCG)"),
             (500, 0,   "Baseline (Pure Soft)"),
-            (250, 250, "Balanced (50/50)"),
-            (400, 100, "Warmup (80/20)"),
-            
-            # Granular Heavy Warmup
-            (450, 50,  "Heavy (90/10)"),
-            (475, 25,  "Heavy (95/5)"),
-            (490, 10,  "Ultra Heavy (98/2)"),
-            (495, 5,   "Micro GCG (99/1)")
         ]
         active_train = TRAIN_DATA
         active_test = TEST_DATA
@@ -331,43 +323,48 @@ def main():
     batch = prepare_batch(tokenizer, active_train)
     csv_path = os.path.join(run_dir, "sweep_results.csv")
     
+    num_trials = args.num_trials
+
     # Init CSV
-    pd.DataFrame(columns=["Label", "Soft", "GCG", "Train_ASR", "Test_ASR", "Final_Loss", "Suffix"]).to_csv(csv_path, index=False)
-    
-    for soft_s, gcg_s, label in configs:
-        logging.info(f"--- RUNNING CONFIG: {label} ({soft_s}/{gcg_s}) ---")
-        
-        # 1. Soft
-        seed = run_soft(model, batch, embed_weights, steps=soft_s)
-        gc.collect(); torch.cuda.empty_cache()
-        
-        # 2. GCG
-        final_ids = run_gcg(model, batch, seed, tokenizer, embed_weights, steps=gcg_s, smoke_test=args.smoke_test)
-        gc.collect(); torch.cuda.empty_cache()
-        
-        suffix_str = tokenizer.decode(final_ids)
-        logging.info(f"Optimized Suffix: {suffix_str}")
-        
-        # 3. Eval
-        logging.info("Evaluating...")
-        train_asr = evaluate_asr(model, tokenizer, suffix_str, active_train)
-        test_asr = evaluate_asr(model, tokenizer, suffix_str, active_test)
-        
-        logging.info(f"RESULT [{label}]: TrainASR={train_asr:.2f} | TestASR={test_asr:.2f}")
-        
-        # 4. Save
-        result_row = {
-            "Label": label,
-            "Soft": soft_s,
-            "GCG": gcg_s,
-            "Train_ASR": train_asr,
-            "Test_ASR": test_asr,
-            "Final_Loss": "N/A", # Could capture last loss if returned
-            "Suffix": suffix_str
-        }
-        
-        pd.DataFrame([result_row]).to_csv(csv_path, mode='a', header=False, index=False)
-        logging.info(f"Saved to {csv_path}\n")
+    pd.DataFrame(columns=["Trial", "Label", "Soft", "GCG", "Train_ASR", "Test_ASR", "Final_Loss", "Suffix"]).to_csv(csv_path, index=False)
+
+    for trial in range(num_trials):
+        logging.info(f"=== TRIAL {trial+1}/{num_trials} ===")
+        for soft_s, gcg_s, label in configs:
+            logging.info(f"--- RUNNING CONFIG: {label} ({soft_s}/{gcg_s}) [Trial {trial+1}] ---")
+
+            # 1. Soft
+            seed = run_soft(model, batch, embed_weights, steps=soft_s)
+            gc.collect(); torch.cuda.empty_cache()
+
+            # 2. GCG
+            final_ids = run_gcg(model, batch, seed, tokenizer, embed_weights, steps=gcg_s, smoke_test=args.smoke_test)
+            gc.collect(); torch.cuda.empty_cache()
+
+            suffix_str = tokenizer.decode(final_ids)
+            logging.info(f"Optimized Suffix: {suffix_str}")
+
+            # 3. Eval
+            logging.info("Evaluating...")
+            train_asr = evaluate_asr(model, tokenizer, suffix_str, active_train)
+            test_asr = evaluate_asr(model, tokenizer, suffix_str, active_test)
+
+            logging.info(f"RESULT [{label}] [Trial {trial+1}]: TrainASR={train_asr:.2f} | TestASR={test_asr:.2f}")
+
+            # 4. Save
+            result_row = {
+                "Trial": trial + 1,
+                "Label": label,
+                "Soft": soft_s,
+                "GCG": gcg_s,
+                "Train_ASR": train_asr,
+                "Test_ASR": test_asr,
+                "Final_Loss": "N/A",
+                "Suffix": suffix_str
+            }
+
+            pd.DataFrame([result_row]).to_csv(csv_path, mode='a', header=False, index=False)
+            logging.info(f"Saved to {csv_path}\n")
 
     logging.info("Experiment Complete.")
 
