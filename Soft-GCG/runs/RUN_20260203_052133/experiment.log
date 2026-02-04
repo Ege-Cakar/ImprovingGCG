@@ -1,0 +1,4 @@
+2026-02-03 05:21:34,002 - INFO - Starting Experiment. Results dir: runs/RUN_20260203_052133
+2026-02-03 05:21:34,007 - INFO - Loading Model...
+2026-02-03 05:21:34,196 - INFO - HTTP Request: HEAD https://huggingface.co/meta-llama/Llama-2-7b-chat-hf/resolve/main/config.json "HTTP/1.1 401 Unauthorized"
+2026-02-03 05:21:34,273 - INFO - HTTP Request: HEAD https://huggingface.co/meta-llama/Llama-2-7b-chat-hf/resolve/main/config.json "HTTP/1.1 401 Unauthorized"

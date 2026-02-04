@@ -2,8 +2,7 @@
 name = "gcg2"
 version = "0.1.0"
 description = "Add your description here"
-readme = "README.md"
-requires-python = ">=3.12"
+requires-python = ">=3.11"
 dependencies = [
     "accelerate>=1.12.0",
     "datasets>=4.4.1",
@@ -16,4 +15,11 @@ dependencies = [
     "tqdm>=4.67.1",
     "transformers>=4.57.3",
 ]
+
+[build-system]
+requires = ["setuptools>=61", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+py-modules = ["sweep_script", "run_sgcg_gemma", "eval_sweep_bars"]
 

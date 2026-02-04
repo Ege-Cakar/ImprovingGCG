@@ -1,0 +1,16 @@
+2026-02-03 05:46:50,418 - INFO - Starting Experiment. Results dir: runs/RUN_20260203_054650
+2026-02-03 05:46:50,430 - INFO - Loading Model...
+2026-02-03 05:46:50,617 - INFO - HTTP Request: HEAD https://huggingface.co/meta-llama/Llama-2-7b-chat-hf/resolve/main/config.json "HTTP/1.1 200 OK"
+2026-02-03 05:46:50,695 - INFO - HTTP Request: HEAD https://huggingface.co/meta-llama/Llama-2-7b-chat-hf/resolve/main/tokenizer_config.json "HTTP/1.1 200 OK"
+2026-02-03 05:46:50,778 - INFO - HTTP Request: HEAD https://huggingface.co/meta-llama/Llama-2-7b-chat-hf/resolve/main/tokenizer_config.json "HTTP/1.1 200 OK"
+2026-02-03 05:46:50,838 - INFO - HTTP Request: GET https://huggingface.co/api/models/meta-llama/Llama-2-7b-chat-hf/tree/main/additional_chat_templates?recursive=false&expand=false "HTTP/1.1 404 Not Found"
+2026-02-03 05:46:50,899 - INFO - HTTP Request: GET https://huggingface.co/api/models/meta-llama/Llama-2-7b-chat-hf/tree/main?recursive=true&expand=false "HTTP/1.1 200 OK"
+2026-02-03 05:46:51,304 - INFO - HTTP Request: HEAD https://huggingface.co/meta-llama/Llama-2-7b-chat-hf/resolve/main/config.json "HTTP/1.1 200 OK"
+2026-02-03 05:46:52,031 - INFO - HTTP Request: HEAD https://huggingface.co/meta-llama/Llama-2-7b-chat-hf/resolve/main/model.safetensors "HTTP/1.1 404 Not Found"
+2026-02-03 05:46:52,103 - INFO - HTTP Request: HEAD https://huggingface.co/meta-llama/Llama-2-7b-chat-hf/resolve/main/model.safetensors.index.json "HTTP/1.1 200 OK"
+2026-02-03 05:46:52,163 - INFO - HTTP Request: GET https://huggingface.co/meta-llama/Llama-2-7b-chat-hf/resolve/main/model.safetensors.index.json "HTTP/1.1 200 OK"
+2026-02-03 05:46:52,255 - INFO - HTTP Request: GET https://huggingface.co/api/models/meta-llama/Llama-2-7b-chat-hf/revision/main "HTTP/1.1 200 OK"
+2026-02-03 05:46:52,322 - INFO - HTTP Request: HEAD https://huggingface.co/meta-llama/Llama-2-7b-chat-hf/resolve/f5db02db724555f92da89c216ac04704f23d4590/model-00001-of-00002.safetensors "HTTP/1.1 302 Found"
+2026-02-03 05:46:52,351 - INFO - HTTP Request: HEAD https://huggingface.co/meta-llama/Llama-2-7b-chat-hf/resolve/f5db02db724555f92da89c216ac04704f23d4590/model-00002-of-00002.safetensors "HTTP/1.1 302 Found"
+2026-02-03 05:46:52,398 - INFO - HTTP Request: GET https://huggingface.co/api/models/meta-llama/Llama-2-7b-chat-hf/xet-read-token/f5db02db724555f92da89c216ac04704f23d4590 "HTTP/1.1 200 OK"
+2026-02-03 05:46:52,409 - INFO - HTTP Request: GET https://huggingface.co/api/models/meta-llama/Llama-2-7b-chat-hf/xet-read-token/f5db02db724555f92da89c216ac04704f23d4590 "HTTP/1.1 200 OK"
