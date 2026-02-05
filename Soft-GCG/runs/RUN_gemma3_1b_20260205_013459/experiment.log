@@ -1,0 +1,7 @@
+2026-02-05 01:34:59,873 - INFO - Loading Model: google/gemma-3-1b-it
+2026-02-05 01:35:00,207 - INFO - HTTP Request: HEAD https://huggingface.co/google/gemma-3-1b-it/resolve/main/config.json "HTTP/1.1 200 OK"
+2026-02-05 01:35:00,435 - INFO - HTTP Request: HEAD https://huggingface.co/google/gemma-3-1b-it/resolve/main/tokenizer_config.json "HTTP/1.1 200 OK"
+2026-02-05 01:35:00,649 - INFO - HTTP Request: GET https://huggingface.co/api/models/google/gemma-3-1b-it/tree/main/additional_chat_templates?recursive=false&expand=false "HTTP/1.1 404 Not Found"
+2026-02-05 01:35:00,754 - INFO - HTTP Request: GET https://huggingface.co/api/models/google/gemma-3-1b-it/tree/main?recursive=true&expand=false "HTTP/1.1 200 OK"
+2026-02-05 01:35:03,217 - INFO - HTTP Request: HEAD https://huggingface.co/google/gemma-3-1b-it/resolve/main/config.json "HTTP/1.1 200 OK"
+2026-02-05 01:35:05,573 - INFO - HTTP Request: HEAD https://huggingface.co/google/gemma-3-1b-it/resolve/main/generation_config.json "HTTP/1.1 200 OK"
