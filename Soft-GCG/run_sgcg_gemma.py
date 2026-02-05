@@ -13,11 +13,12 @@ from tqdm import tqdm
 
 # --- CONFIGURATION ---
 MODEL_MAPPING = {
-    "gemma3:270m": "google/gemma-3-270m-it", # Assuming these are the HF paths
+    "gemma3:270m": "google/gemma-3-270m-it",
     "gemma3:1b": "google/gemma-3-1b-it",
     "gemma3:4b": "google/gemma-3-4b-it",
     "gemma3:12b": "google/gemma-3-12b-it",
-    "gemma3:27b": "google/gemma-3-27b-it"
+    "gemma3:27b": "google/gemma-3-27b-it",
+    "llama2:7b": "meta-llama/Llama-2-7b-chat-hf",
 }
 
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"

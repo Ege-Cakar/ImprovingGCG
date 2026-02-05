@@ -14,6 +14,7 @@ from datetime import datetime
 MODEL_MAPPING = {
     "gemma3:1b": "google/gemma-3-1b-it",
     "gemma3:4b": "google/gemma-3-4b-it",
+    "llama2:7b": "meta-llama/Llama-2-7b-chat-hf",
 }
 
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
@@ -313,7 +314,7 @@ def run_gcg(model, batch, tokenizer, embed_weights, steps=500, smoke_test=False)
 def main():
     parser = argparse.ArgumentParser(description="Compare Vanilla GCG vs Soft-GCG on Gemma models")
     parser.add_argument("--model", type=str, required=True, choices=list(MODEL_MAPPING.keys()),
-                        help="Model key (gemma3:1b or gemma3:4b)")
+                        help="Model key (gemma3:1b, gemma3:4b, or llama2:7b)")
     parser.add_argument("--num-trials", type=int, default=10, help="Number of independent trials per method")
     parser.add_argument("--soft-steps", type=int, default=DEFAULT_STEPS, help="Steps for Soft-GCG")
     parser.add_argument("--gcg-steps", type=int, default=500, help="Steps for vanilla GCG")
