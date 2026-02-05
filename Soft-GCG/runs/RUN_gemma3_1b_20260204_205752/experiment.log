@@ -1,0 +1,6 @@
+2026-02-04 20:57:52,631 - INFO - Starting Comparison Experiment: gemma3:1b
+2026-02-04 20:57:52,633 - INFO - Methods: Vanilla GCG (500 steps) vs Soft-GCG (2000 steps)
+2026-02-04 20:57:52,634 - INFO - Trials per method: 10
+2026-02-04 20:57:52,636 - INFO - Loading Model: google/gemma-3-1b-it
+2026-02-04 20:57:53,464 - INFO - HTTP Request: HEAD https://huggingface.co/google/gemma-3-1b-it/resolve/main/config.json "HTTP/1.1 401 Unauthorized"
+2026-02-04 20:57:53,617 - INFO - HTTP Request: HEAD https://huggingface.co/google/gemma-3-1b-it/resolve/main/config.json "HTTP/1.1 401 Unauthorized"
