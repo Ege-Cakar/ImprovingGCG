@@ -253,7 +253,8 @@ def evaluate_suffix(model, tokenizer, suffix, prompts, refusals, batch_size=5):
 # --- MAIN ---
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--model", type=str, required=True, help="Model key (e.g., gemma3:270m)")
+    parser.add_argument("--model", type=str, required=True, help="Model key (e.g., gemma3:1b, llama2:7b)")
+    parser.add_argument("--num-runs", type=int, default=10, help="Number of independent trials")
     parser.add_argument("--smoke-test", action="store_true", help="Run fast smoke test")
     parser.add_argument("--2", dest="variant2", action="store_true", help="Use Variant 2 (CW Loss + 3-Phase Annealing)")
     args = parser.parse_args()
@@ -288,7 +289,7 @@ def main():
     pd.DataFrame(columns=["Run_ID", "Suffix", "ASR"]).to_csv(csv_path, index=False)
     
     steps = 5 if args.smoke_test else DEFAULT_STEPS
-    num_runs = 1 if args.smoke_test else 1
+    num_runs = 2 if args.smoke_test else args.num_runs
     
     for run_id in range(1, num_runs + 1):
         logging.info(f"--- Run {run_id}/{num_runs} ---")
