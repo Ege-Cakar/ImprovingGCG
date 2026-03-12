@@ -1,17 +1,17 @@
 #!/usr/bin/env python3
 """
-Evaluate existing completions with substring, LlamaGuard2, and HarmBench.
+Evaluate existing completions with substring, LlamaGuard, and HarmBench.
 
 This script does NOT rerun attacks or regenerate completions; it only
 re-scores the JSONs written by activation_pipeline.py.
 
 Usage (from repo root, in an eval-only venv that has vllm + litellm):
 
-  export TOGETHER_API_KEY=...   # for LlamaGuard2
+  export TOGETHER_API_KEY=...   # for LlamaGuard
   python eval_safety.py \
       --output-dir outputs/activation_gcg \
       --variants activation_gcg,gcg,ablation \
-      --methods substring_matching,llamaguard2,harmbench
+      --methods substring_matching,llamaguard,harmbench
 """
 
 import argparse
@@ -39,7 +39,7 @@ def parse_args():
     )
     p.add_argument(
         "--methods",
-        default="substring_matching,llamaguard2,harmbench",
+        default="substring_matching,llamaguard,harmbench",
         help="Comma-separated list of methodologies for evaluate_jailbreak",
     )
     p.add_argument(

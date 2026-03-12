@@ -5,7 +5,7 @@ standard GCG, and refusal-direction ablation baselines on Llama-2-7B-Chat.
 Outputs:
   - Optimized suffixes for activation-GCG and standard GCG (optional)
   - Completions for harmful/harmless datasets
-  - Jailbreak ASR metrics (substring + optional LlamaGuard2)
+  - Jailbreak ASR metrics (substring + optional LlamaGuard)
   - CE/perplexity metrics on harmless data
 Artifacts are written under --output-dir.
 """
@@ -379,10 +379,10 @@ def main():
             with open(harmless_path) as f:
                 harmless_comp = json.load(f)
 
-        # Jailbreak evals (substring + optional LlamaGuard2)
+        # Jailbreak evals (substring + optional LlamaGuard)
         meths = ["substring_matching"]
         if not args.disable_llamaguard and os.getenv("TOGETHER_API_KEY"):
-            meths.append("llamaguard2")
+            meths.append("llamaguard")
 
         print(f"=== Evaluating jailbreak metrics for {name} ===")
         eval_harm = evaluate_jailbreak(
