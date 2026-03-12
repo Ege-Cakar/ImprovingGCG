@@ -1,6 +1,7 @@
 import gc
 import torch
 import numpy as np
+from tqdm.auto import tqdm
 
 from llm_attacks import AttackPrompt, PromptManager, MultiPromptAttack
 from llm_attacks import get_embedding_matrix, get_embeddings, get_nonascii_toks
@@ -156,17 +157,33 @@ class ActivationAttackPrompt(AttackPrompt):
         assert direction is not None and layer is not None
         self.direction = direction
         self.layer = layer
-        self.pos = pos
+        self._raw_pos = pos
         # act_obj: "negative" -> push projection negative; "zero" -> minimize magnitude
         self.act_obj = act_obj
         self.score_mode = score_mode
+
+    @property
+    def resolved_pos(self):
+        """Resolve pos relative to end-of-instruction to an absolute index.
+
+        The refusal direction metadata uses negative positions relative to the
+        end of the instruction (e.g., pos=-1 is the last token before the
+        model generates).  In the GCG input layout the assistant-role slice
+        (``[/INST]``) sits between the control suffix and the target tokens,
+        so ``_assistant_role_slice.stop`` is the first target token.  Mapping
+        ``pos=-1`` → ``_assistant_role_slice.stop - 1`` recovers the same
+        position that was used when the refusal direction was extracted.
+        """
+        if self._raw_pos < 0:
+            return self._assistant_role_slice.stop + self._raw_pos
+        return self._raw_pos
 
     def grad_activation(self, model):
         return token_gradients_activation(
             model,
             self.input_ids.to(model.device),
             self._control_slice,
-            self.pos,
+            self.resolved_pos,
             self.layer,
             self.direction,
             self.act_obj,
@@ -179,7 +196,7 @@ class ActivationAttackPrompt(AttackPrompt):
         """
         direction = direction if direction is not None else self.direction
         layer = layer if layer is not None else self.layer
-        pos = self.pos if pos is None else pos
+        pos = self.resolved_pos if pos is None else pos
         act_obj = getattr(self, "act_obj", "negative")
         score_mode = score_mode or getattr(self, "score_mode", "global")
 
@@ -523,7 +540,7 @@ class ActivationMultiPromptAttack(MultiPromptAttack):
                             worker.model,
                             self.direction,
                             self.layer,
-                            self.pos,
+                            None,  # let each prompt use its own resolved_pos
                             cand,
                             self.score_mode,
                         )

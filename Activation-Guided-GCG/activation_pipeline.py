@@ -100,15 +100,6 @@ def parse_args():
              "'negative' pushes projection negative at (layer,pos).",
     )
     p.add_argument(
-        "--activation-score-mode",
-        choices=["global", "local", "token_all_layers"],
-        default="global",
-        help="Scoring mode for activation-GCG candidate selection. "
-             "'global' scores candidates over all layers/tokens; "
-             "'local' uses only the canonical (layer,pos); "
-             "'token_all_layers' aggregates across all layers at the chosen token.",
-    )
-    p.add_argument(
         "--conversation-template",
         default=None,
         help="FastChat conversation template name (defaults to llama-2).",
@@ -192,16 +183,23 @@ def run_activation_gcg(args, direction, layer, pos, conversation_template):
     params = build_params(args.model_path, args.device, conversation_template)
     workers, test_workers = get_workers(params)
 
-    goals = sample_harmful_prompts(args.n_train)
+    goals, _ = sample_advbench_pairs(args.n_train)
+    if goals is None:
+        # Fallback to refusal_direction splits if AdvBench not available
+        goals = sample_harmful_prompts(args.n_train)
     targets = ["Sure."] * len(goals)  # placeholder; not used in activation objective
 
     managers = {"AP": ActAttackPrompt, "PM": ActPromptManager, "MPA": ActMultiPromptAttack}
 
-    score_mode = (
-        "token_all_layers"
-        if args.activation_obj == "token_all_layers"
-        else args.activation_score_mode
-    )
+    # Align scoring mode with gradient objective to avoid mismatch
+    score_mode_map = {
+        "zero": "local",              # single (layer, pos)
+        "negative": "local",          # single (layer, pos)
+        "layer_zero_all": "local",    # single layer, all pos
+        "token_all_layers": "token_all_layers",  # all layers, single pos
+        "global_zero": "global",      # all layers, all pos
+    }
+    score_mode = score_mode_map[args.activation_obj]
 
     attack = ActMultiPromptAttack(
         goals,

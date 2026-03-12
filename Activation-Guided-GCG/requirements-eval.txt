@@ -1,0 +1,8 @@
+# Eval-only dependencies for eval_safety.py
+# (LlamaGuard2 via Together API + HarmBench via local vLLM)
+
+torch>=2.1.0
+transformers>=4.28.1
+numpy>=1.26.0
+litellm>=1.0.0            # LlamaGuard2 evaluation via Together API
+vllm>=0.4.0               # HarmBench classifier (cais/HarmBench-Llama-2-13b-cls)
