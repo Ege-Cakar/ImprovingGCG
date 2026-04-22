@@ -80,7 +80,7 @@
 \maketitle
 
 \begin{abstract}
-Behavioral alignment in large language models often masks fragile internal safety representations. Recent work suggests that refusal behavior is mediated by low-dimensional directions in activation space. This raises questions about how such representations are structured, localized, and accessed by optimization. We study adversarial suffix attacks as a probe of representational alignment. We introduce Activation-Guided GCG, which replaces output-based objectives with losses that directly target a model's internal refusal direction. Across several objective variants, we find that suppressing refusal at a single layer–position pair is more effective than global suppression. This suggests that safety representations are causally localized rather than redundantly distributed. We further introduce Soft-GCG, a continuous relaxation of discrete suffix optimization using Gumbel-Softmax. Soft-GCG achieves a 33$\times$ speedup over standard GCG while improving attack success rates. Evaluating across model scales, we find that smaller models remain vulnerable while larger models resist both activation- and suffix-based attacks at our compute-constrained settings, consistent with larger and better safety trained models being harder to jailbreak. Together, our results clarify how safety mechanisms are encoded and can be broken in contemporary models. These insights provide concrete guidance for designing more robust and representation-aware alignment strategies.
+Behavioral alignment in large language models often masks fragile internal safety representations. Recent work suggests that refusal behavior is mediated by low-dimensional directions in activation space. This raises questions about how such representations are structured, localized, and accessed by optimization. We study adversarial suffix attacks as a probe of representational alignment. We introduce Activation-Guided GCG, which replaces output-based objectives with losses that directly target a model's internal refusal direction. Across several objective variants, we find that suppressing refusal globally across all layers and positions is more effective than targeting a single layer–position pair. This suggests that safety representations are distributed across the forward pass rather than causally localized to a single site. We further introduce Soft-GCG, a continuous relaxation of discrete suffix optimization using Gumbel-Softmax. Soft-GCG achieves a 33$\times$ speedup over standard GCG while improving attack success rates. Evaluating across model scales, we find that smaller models remain vulnerable while larger models resist both activation- and suffix-based attacks at our compute-constrained settings, consistent with larger and better safety trained models being harder to jailbreak. Together, our results clarify how safety mechanisms are encoded and can be broken in contemporary models. These insights provide concrete guidance for designing more robust and representation-aware alignment strategies.
 \end{abstract}
 
 \section{Introduction}
@@ -153,7 +153,7 @@ The activation-based approach offers two potential advantages. First, by targeti
 
 \subsubsection{Refusal Direction Extraction}
 
-We extract refusal directions using the difference-in-means methodology (Equation 3). For each layer $\ell$, we compute candidate directions and select the optimal layer $\ell^*$ by maximizing ablation effectiveness. The selected direction $\mathbf{d}_{\text{refusal}} = r^{(\ell^*)}$ serves as the optimization target for our attack.
+We use the precomputed refusal direction provided by \cite{arditi2024refusal}, extracted using the difference-in-means methodology (Equation 3). The optimal layer $\ell^* = 14$ and position $p = -1$ were selected by ranking candidate directions by how much ablating them reduces refusal scores on harmful prompts using the refusal-direction training splits. The selected direction $\mathbf{d}_{\text{refusal}}$ serves as the optimization target for our attack.
 
 \subsubsection{Activation-Based Adversarial Optimization}
 
@@ -184,13 +184,13 @@ where $\mathcal{P}$ represents all token positions in the sequence.
 
     \item \textbf{Token.} Minimize projections at a single token position across all layers:
 \begin{equation}
-    \mathcal{L}_{\text{act}}^{\text{token}}(\mathbf{x}) = \frac{1}{L} \sum_{\ell=1}^{L} \left( \frac{\mathbf{h}^{(\ell)}_p(\mathbf{x}) \cdot \mathbf{d}_{\text{refusal}}^{(\ell)}}{\|\mathbf{d}_{\text{refusal}}^{(\ell)}\|} \right)^2
+    \mathcal{L}_{\text{act}}^{\text{token}}(\mathbf{x}) = \frac{1}{L} \sum_{\ell=1}^{L} \left( \frac{\mathbf{h}^{(\ell)}_p(\mathbf{x}) \cdot \mathbf{d}_{\text{refusal}}}{\|\mathbf{d}_{\text{refusal}}\|} \right)^2
 \end{equation}
-where $L$ is the total number of layers and $\mathbf{d}_{\text{refusal}}^{(\ell)}$ is the refusal direction at layer $\ell$.
+where $L$ is the total number of layers and $\mathbf{d}_{\text{refusal}}$ is the refusal direction at layer $\ell$, applied identically to each layer.
 
     \item  \textbf{All.} Minimize projections across all layers and all positions:
 \begin{equation}
-    \mathcal{L}_{\text{act}}^{\text{global}}(\mathbf{x}) = \frac{1}{L \cdot |\mathcal{P}|} \sum_{\ell=1}^{L} \sum_{p \in \mathcal{P}} \left( \frac{\mathbf{h}^{(\ell)}_p(\mathbf{x}) \cdot \mathbf{d}_{\text{refusal}}^{(\ell)}}{\|\mathbf{d}_{\text{refusal}}^{(\ell)}\|} \right)^2.
+    \mathcal{L}_{\text{act}}^{\text{global}}(\mathbf{x}) = \frac{1}{L \cdot |\mathcal{P}|} \sum_{\ell=1}^{L} \sum_{p \in \mathcal{P}} \left( \frac{\mathbf{h}^{(\ell)}_p(\mathbf{x}) \cdot \mathbf{d}_{\text{refusal}}}{\|\mathbf{d}_{\text{refusal}}\|} \right)^2.
 \end{equation}
 \end{itemize}
 
@@ -281,15 +281,8 @@ From this point on, the converged substring can directly be utilized for attacks
   \texttt{refusal\_direction} \citep{arditi2024refusal} and \texttt{llm\_attacks} \citep{zou2023universal}:
 
   \begin{itemize}
-    \item \textbf{Harmful prompts (train):} the \texttt{harmful\_train} split from
-    the refusal-direction dataset, using only the instruction text. These are
-    prompts that explicitly request harmful behavior (e.g., how to cause physical,
-    cyber, or social harm).
-    \item \textbf{Harmful prompts (test):} the \texttt{harmful\_test} split from
-    the same dataset, used only for evaluation.
-    \item \textbf{AdvBench behaviors (for GCG baseline):} to train the GCG baseline, we use AdvBench, which
-    contains paired (goal, target) strings describing harmful behaviors and their
-    desiderata.
+    \item \textbf{Harmful prompts (train):} Both GCG and Activation-Guided GCG train on goals drawn from AdvBench \citep{zou2023universal}. For Activation-Guided GCG, the target strings are unused since the objective operates on activations rather than output logits.
+    \item \textbf{Harmful prompts (test):} the harmful test split from the refusal-direction dataset, used only for evaluation.
   \end{itemize}
 
   We use the standard parameters provided in the \texttt{llm\_attacks} repository for all tests. Every test is trained with 200 discrete optimization steps.
@@ -316,7 +309,7 @@ From this point on, the converged substring can directly be utilized for attacks
       \end{itemize}
 
       \subsubsection{Results}
-      \textbf{Activation-based objectives show improved attack success despite limited optimization steps. (Table~\ref{tab:activation_methods_asr})} As expected, the baseline (no suffix) results have the lowest ASR scores, and the ablation (steering the activation values) results are the highest. All optimization objectives meaningfully improve the substring ASR. While absolute ASR remains low across all suffix-based methods, suggesting that 200 optimization steps is insufficient for convergence, the relative improvement of using the ``Single" objective over baseline GCG indicates that activation-based objectives may offer better sample efficiency. 
+      \textbf{Activation-based objectives show improved attack success despite limited optimization steps. (Table~\ref{tab:activation_methods_asr})} As expected, the baseline (no suffix) results have the lowest ASR scores, and the ablation results are the highest. All activation-based objectives outperform or match standard GCG in substring ASR, with the "All" objective achieving 0.91 — approaching the ablation ceiling (0.98) — followed by Single (0.84), Layer and Negative (0.81), and Token (0.76). The strong performance of broader-scope objectives, particularly All, may reflect either that refusal representations are distributed across layers and positions, or that wider objectives provide richer gradient signal for optimization. In either case, activation-based objectives demonstrate substantially better sample efficiency than standard GCG at 200 steps.
 
 \begin{table}[H]
     \centering
@@ -328,14 +321,14 @@ From this point on, the converged substring can directly be utilized for attacks
         \textbf{Method} & Substring & LlamaGuard2 & HarmBench \\
         \midrule
         Baseline           & 0.39 & 0.00 & 0.00 \\
-        Ablation           & 0.98 & 0.50 & 0.56 \\
+        Ablation           & 0.98 & 0.50 & 0.62 \\
         \midrule
-        Single             & \textbf{0.82} & \textbf{0.04} & \textbf{0.06} \\
-        Negative           & \textbf{0.82} & 0.01 & 0.01 \\
-        All                & 0.75 & 0.00 & 0.00 \\
-        Layer              & 0.71 & 0.00 & 0.00 \\
-        Token              & 0.74 & 0.00 & 0.01 \\
-        GCG      & 0.76 & 0.00 & 0.01 \\
+        Single             & 0.84 & 0.06 & \textbf{0.04} \\
+        Negative           & 0.81 & 0.03 & 0.03 \\
+        All                & \textbf{0.91} & \textbf{0.09} & 0.01 \\
+        Layer              & 0.81 & 0.03 & 0.01 \\
+        Token              & 0.76 & 0.00 & 0.00 \\
+        GCG      & 0.76 & 0.00 & 0.00 \\
         \bottomrule
     \end{tabular}
     \caption{
